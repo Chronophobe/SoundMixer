@@ -1,0 +1,21 @@
+﻿<Window x:Class="SoundMixer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mixer="clr-namespace:SoundMixer"
+        mc:Ignorable="d"
+        Title="Mixer Control" Height="275" Width="525">
+    <StackPanel>
+        <Menu IsMainMenu="True">
+            <MenuItem Header="_New" Click="OnNew" />
+            <MenuItem Header="_Open" Click="OnOpen" />
+            <MenuItem Header="_Save" Click="OnSave" />
+            <MenuItem Header="Save _as" Click="OnSaveAs" />
+        </Menu>
+        <mixer:ProfileControl x:Name="FirstProfile" Margin="0 0 0 25"></mixer:ProfileControl>
+        <mixer:ProfileControl x:Name="SecondProfile" Margin="0 0 0 25"></mixer:ProfileControl>
+        <mixer:ProfileControl x:Name="ThirdProfile"></mixer:ProfileControl>
+    </StackPanel>
+
+</Window>
