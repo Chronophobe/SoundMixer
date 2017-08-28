@@ -40,10 +40,8 @@ namespace SoundMixer
 
         private void OnNew(object sender, RoutedEventArgs e)
         {
-            var controller = new ProcessController(this.MixerConfiguration.Profiles[0].Processes[0]);
-            controller.SetVolume(0);
-            //this.MixerConfiguration = new JsonConfiguration();
-            //this.Reload();
+            this.MixerConfiguration = new JsonConfiguration();
+            this.Reload();
         }
 
         private void OnSave(object sender, RoutedEventArgs e)
