@@ -5,17 +5,47 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mixer="clr-namespace:SoundMixer"
         mc:Ignorable="d"
-        Title="Mixer Control" Height="275" Width="525">
-    <StackPanel>
-        <Menu IsMainMenu="True">
-            <MenuItem Header="_New" Click="OnNew" />
-            <MenuItem Header="_Open" Click="OnOpen" />
-            <MenuItem Header="_Save" Click="OnSave" />
-            <MenuItem Header="Save _as" Click="OnSaveAs" />
+        Title="Mixer Control" Height="300" Width="525"
+        SizeToContent="WidthAndHeight">
+
+    <Window.CommandBindings>
+        <CommandBinding Command="New" Executed="OnNew" />
+        <CommandBinding Command="Open" Executed="OnOpen"/>
+        <CommandBinding Command="Save" Executed="OnSave"/>
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Control" Command="New"/>
+        <KeyBinding Key="O" Modifiers="Control" Command="Open"/>
+        <KeyBinding Key="S" Modifiers="Control" Command="Save"/>
+    </Window.InputBindings>
+
+    <DockPanel>
+        <Menu IsMainMenu="True" DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Command="New" />
+                <MenuItem Header="_Open" Command="Open" />
+                <MenuItem Header="_Save" Command="Save" />
+                <MenuItem Header="Save _as" Click="OnSaveAs" />
+            </MenuItem>
+
+            <MenuItem Header="_Connect" Name="ConnectionMenu" Click="GetPorts" SubmenuOpened="GetPorts">
+            </MenuItem>
+
         </Menu>
-        <mixer:ProfileControl x:Name="FirstProfile" Margin="0 0 0 25"></mixer:ProfileControl>
-        <mixer:ProfileControl x:Name="SecondProfile" Margin="0 0 0 25"></mixer:ProfileControl>
-        <mixer:ProfileControl x:Name="ThirdProfile"></mixer:ProfileControl>
-    </StackPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock Text="Disconnected" Name="ConnectionStatus"></TextBlock>
+            </StatusBarItem>
+            <Separator Margin="10 0"></Separator>
+            <StatusBarItem>
+                <TextBlock Text="New configuration" Name="ConfigurationStatus"></TextBlock>
+            </StatusBarItem>
+        </StatusBar>
+        <StackPanel Margin="0 10 0 10">
+            <mixer:ProfileControl x:Name="FirstProfile" Margin="0 0 0 25"></mixer:ProfileControl>
+            <mixer:ProfileControl x:Name="SecondProfile" Margin="0 0 0 25"></mixer:ProfileControl>
+            <mixer:ProfileControl x:Name="ThirdProfile"></mixer:ProfileControl>
+        </StackPanel>
+    </DockPanel>
 
 </Window>
