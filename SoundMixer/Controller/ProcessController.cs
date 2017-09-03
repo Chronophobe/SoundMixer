@@ -1,15 +1,12 @@
 ﻿using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SoundMixer.Controller
 {
-    class ProcessController
+    class ProcessController : IController
     {
         public String Name { get; private set; }
         public AudioSessionControl Session { get; private set; }
@@ -39,12 +36,7 @@ namespace SoundMixer.Controller
             return null;
         }
 
-        /// <summary>
-        /// Set the volume.
-        /// </summary>
-        /// <param name="newVolume">The new volume between 0 (mute) and 1 (max).</param>
-        /// <returns>True, if the volume could be set. False, otherwise.</returns>
-        public bool SetVolume(float newVolume) {
+        public bool SetVolume(float volume) {
             if (this.Session?.State != AudioSessionState.AudioSessionStateActive)
             {
                 if ((this.Session = this.getSession()) == null)
@@ -52,7 +44,7 @@ namespace SoundMixer.Controller
                     return false;
                 }
             }
-            this.Session.SimpleAudioVolume.Volume = newVolume;
+            this.Session.SimpleAudioVolume.Volume = volume/ 100;
             return true;
         }
     }

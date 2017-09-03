@@ -3,7 +3,6 @@ int pins[] = {A1, A2, A3, A4};
 
 void setup() {
     Serial.begin(9600);
-    pinMode(4, OUTPUT);
     pinMode(5, OUTPUT);
 }
 
@@ -13,9 +12,8 @@ void loop() {
     int difference = val - currentValues[i];
     if(abs(difference) > 2){
       digitalWrite(5, HIGH);
-      Serial.write("VOL");
       Serial.print(i);
-      Serial.write(": ");
+      Serial.write(":");
       Serial.println(val);
       currentValues[i] = val;
     }

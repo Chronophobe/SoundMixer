@@ -23,6 +23,7 @@ namespace SoundMixer
 
         public IConfiguration MixerConfiguration { get; private set; }
         private Port Port;
+        private Mixer Mixer;
 
         public MainWindow()
         {
@@ -37,41 +38,35 @@ namespace SoundMixer
             }
             this.Reload();
             this.Port.OnData += this.ControlVolume;
+            this.Mixer = new Mixer();
         }
 
         private void ControlVolume(object sender, SerialDataReceivedEventArgs e)
         {
-            var deviceEnumerator = new MMDeviceEnumerator();
-            var device = deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia | Role.Console);
-            var a = device.AudioEndpointVolume.VolumeRange;
+
             var data = ((SerialPort)sender).ReadLine();
-            var volume = long.Parse(new String(data.Where(Char.IsDigit).ToArray()));
+            var commandParts = data.Split(new char[] { ':' });
 
-            volume = this.linearize(
-                volume,
-                new long[] { 0, 46, 513, 977 },
-                new long[] { 45, 512, 976, 1023},
-                new long[] { 0, 26, 51, 76 },
-                new long[] { 25, 50, 75, 100 } );
-            device.AudioEndpointVolume.MasterVolumeLevelScalar = ((float) volume) / 100;
-        }
-
-        public long linearize(long val, long[] in_min, long[] in_max, long[] out_min, long[] out_max)
-        {
-            for(int i = 0; i < in_min.Length; i++)
+            var volume = long.Parse(commandParts[1]);
+            if(commandParts[0] == "0")
             {
-                if(val <= in_max[i])
-                {
-                    return this.map(val, in_min[i], in_max[i], out_min[i], out_max[i]);
-                }
+                volume = RangeConverter.linearize(
+                    volume,
+                    new long[] { 0, 46, 513, 977 },
+                    new long[] { 45, 512, 976, 1023 },
+                    new long[] { 0, 26, 51, 76 },
+                    new long[] { 25, 50, 75, 100 });
             }
-            return val;
+            else
+            {
+                volume = RangeConverter.map(volume, 0, 1023, 0, 100);
+            }
+
+            var command = new Command(int.Parse(commandParts[0]), (int)volume);
+
+            this.Mixer.SetVolume(command);
         }
 
-        public long map(long val, long in_min, long in_max, long out_min, long out_max)
-        {
-            return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-        }
         private void GetPorts(object sender, RoutedEventArgs e)
         {
             var ports = Port.AvailablePorts();
@@ -125,6 +120,19 @@ namespace SoundMixer
             ThirdProfile.Profile = this.MixerConfiguration.Profiles[2];
         }
 
+        private void LoadMixer()
+        {
+            try
+            {
+                var profile = this.MixerConfiguration.Profiles[0];
+                this.Mixer = new Mixer(profile.Processes);
+            }
+            catch (IndexOutOfRangeException)
+            {
+                return;
+            }
+        }
+
         private void OnNew(object sender, RoutedEventArgs e)
         {
             this.MixerConfiguration = new JsonConfiguration();
@@ -142,7 +150,7 @@ namespace SoundMixer
             {
                 this.MixerConfiguration.Save();
             }
-            
+            this.LoadMixer();
         }
 
         private void OnOpen(object sender, RoutedEventArgs e)
@@ -158,6 +166,7 @@ namespace SoundMixer
                 this.MixerConfiguration.Load(path);
                 this.Reload();
                 this.ConfigurationStatus.Text = path;
+                this.LoadMixer();
             }
         }
 
@@ -175,6 +184,7 @@ namespace SoundMixer
                 var path = dialogue.FileName;
                 this.MixerConfiguration.SaveAs(path);
                 this.ConfigurationStatus.Text = path;
+                this.LoadMixer();
             }
         }
     }

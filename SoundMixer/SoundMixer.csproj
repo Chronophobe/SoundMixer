@@ -65,6 +65,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controller\IController.cs" />
+    <Compile Include="Controller\MasterController.cs" />
+    <Compile Include="Controller\Mixer.cs" />
+    <Compile Include="RangeConverter.cs" />
+    <Compile Include="Serial\Command.cs" />
     <Compile Include="Serial\Port.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
