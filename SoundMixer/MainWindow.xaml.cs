@@ -33,9 +33,6 @@ namespace SoundMixer
             this.GetPorts(this.ConnectionMenu, null);
 
             this.MixerConfiguration = new JsonConfiguration();
-            for (int i = 0; i < 3; i++) {
-                this.MixerConfiguration.Profiles.Add(new Profile("", new List<String>(3)));
-            }
             this.Reload();
             this.Port.OnData += this.ControlVolume;
             this.Mixer = new Mixer();
@@ -108,23 +105,14 @@ namespace SoundMixer
 
         private void Reload()
         {
-            var count = this.MixerConfiguration.Profiles.Count;
-            if (count < 3)
-            {
-                for (int i = 0; i < 3 - count; i++){
-                    this.MixerConfiguration.Profiles.Add(new Profile("", new List<String>(3)));
-                }
-            }
-            FirstProfile.Profile = this.MixerConfiguration.Profiles[0];
-            SecondProfile.Profile = this.MixerConfiguration.Profiles[1];
-            ThirdProfile.Profile = this.MixerConfiguration.Profiles[2];
+            FirstProfile.Profile = this.MixerConfiguration.Profile;
         }
 
         private void LoadMixer()
         {
             try
             {
-                var profile = this.MixerConfiguration.Profiles[0];
+                var profile = this.MixerConfiguration.Profile;
                 this.Mixer = new Mixer(profile.Processes);
             }
             catch (IndexOutOfRangeException)

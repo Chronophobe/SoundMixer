@@ -23,7 +23,6 @@ namespace SoundMixer
             }
             set {
                 this.profile = value;
-                this.NameBox.Text = value.Name;
                 if (value.Processes.Count > 0)
                     ProcessOne.Text = value.Processes[0];
                 else
@@ -36,13 +35,11 @@ namespace SoundMixer
                     ProcessThree.Text = value.Processes[2];
                 else
                     ProcessThree.Text = "";
+                if (value.Processes.Count > 3)
+                    ProcessFour.Text = value.Processes[3];
+                else
+                    ProcessFour.Text = "";
             }
-        }
-
-
-        private void UpdateName(object sender, TextChangedEventArgs e)
-        {
-            this.Profile.Name = NameBox.Text;
         }
 
         private void UpdateProcessOne(object sender, TextChangedEventArgs e)
@@ -78,6 +75,18 @@ namespace SoundMixer
             else
             {
                 this.Profile.Processes[2] = ProcessThree.Text;
+            }
+        }
+
+        private void UpdateProcessFour(object sender, TextChangedEventArgs e)
+        {
+            if (this.Profile.Processes.Count == 3)
+            {
+                this.Profile.Processes.Add(ProcessFour.Text);
+            }
+            else
+            {
+                this.Profile.Processes[3] = ProcessFour.Text;
             }
         }
     }

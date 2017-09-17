@@ -10,11 +10,11 @@ namespace SoundMixer.Configuration
 
         [JsonProperty]
         public string Path { get; private set; }
-        public IList<Profile> Profiles { get; private set; }
+        public Profile Profile { get; private set; }
 
         public JsonConfiguration()
         {
-            this.Profiles = new List<Profile>();
+            this.Profile = new Profile(new List<String>(4));
         }
 
         public JsonConfiguration(String path)
@@ -39,7 +39,7 @@ namespace SoundMixer.Configuration
             var jsonConfig = File.ReadAllText(path);
             var config =  JsonConvert.DeserializeObject<JsonConfiguration>(jsonConfig);
             this.Path = config.Path;
-            this.Profiles = config.Profiles;
+            this.Profile = config.Profile;
         }
     }
 }

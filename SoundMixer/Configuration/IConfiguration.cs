@@ -9,7 +9,7 @@ namespace SoundMixer.Configuration
             get;
         }
 
-        IList<Profile> Profiles {
+        Profile Profile {
             get;
         }
 

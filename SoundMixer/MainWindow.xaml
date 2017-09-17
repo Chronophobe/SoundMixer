@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mixer="clr-namespace:SoundMixer"
         mc:Ignorable="d"
-        Title="Mixer Control" Height="300" Width="525"
+        Title="Mixer Control" Height="150" Width="525"
         SizeToContent="WidthAndHeight">
 
     <Window.CommandBindings>
@@ -43,8 +43,6 @@
         </StatusBar>
         <StackPanel Margin="0 10 0 10">
             <mixer:ProfileControl x:Name="FirstProfile" Margin="0 0 0 25"></mixer:ProfileControl>
-            <mixer:ProfileControl x:Name="SecondProfile" Margin="0 0 0 25"></mixer:ProfileControl>
-            <mixer:ProfileControl x:Name="ThirdProfile"></mixer:ProfileControl>
         </StackPanel>
     </DockPanel>
 
