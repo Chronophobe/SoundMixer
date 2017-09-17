@@ -12,7 +12,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="120" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="120" />
             <ColumnDefinition Width="120" />
         </Grid.ColumnDefinitions>

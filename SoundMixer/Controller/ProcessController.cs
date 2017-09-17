@@ -1,6 +1,7 @@
 ﻿using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -36,7 +37,34 @@ namespace SoundMixer.Controller
             return null;
         }
 
+        private IEnumerable<AudioSessionControl> getSessions()
+        {
+            var processes = Process.GetProcessesByName(this.Name);
+            var pids = processes.Select(x => x.Id);
+
+            var deviceEnumerator = new MMDeviceEnumerator();
+            var device = deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia | Role.Console);
+            var sessions = device.AudioSessionManager.Sessions;
+            for (int i = 0; i < sessions.Count; i++)
+            {
+                var session = sessions[i];
+                if (pids.Contains((int)session.GetProcessID))
+                {
+                    yield return session;
+                }
+            }
+            yield return null;
+        }
+
         public bool SetVolume(float volume) {
+            foreach(var control in getSessions())
+            {
+                try
+                {
+                    control.SimpleAudioVolume.Volume = volume / 100;
+                }
+                catch (NullReferenceException) { }
+            }
             if (this.Session?.State != AudioSessionState.AudioSessionStateActive)
             {
                 if ((this.Session = this.getSession()) == null)
