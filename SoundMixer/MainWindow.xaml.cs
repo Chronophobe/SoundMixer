@@ -12,6 +12,7 @@ using System.IO.Ports;
 using NAudio.CoreAudioApi;
 using System.Linq;
 using System.Diagnostics;
+using System.IO;
 
 namespace SoundMixer
 {
@@ -22,6 +23,8 @@ namespace SoundMixer
     {
 
         public IConfiguration MixerConfiguration { get; private set; }
+        public ApplicationConfiguration AppConfig { get; private set; }
+
         private Port Port;
         private Mixer Mixer;
 
@@ -32,10 +35,30 @@ namespace SoundMixer
             this.Port = new Port();
             this.GetPorts(this.ConnectionMenu, null);
 
-            this.MixerConfiguration = new JsonConfiguration();
+            this.AppConfig = ApplicationConfiguration.Load();
+            this.Mixer = new Mixer();
+            this.InitializeFromConfig();
+            
             this.Reload();
             this.Port.OnData += this.ControlVolume;
-            this.Mixer = new Mixer();
+            
+        }
+
+        private void InitializeFromConfig()
+        {
+
+            this.MixerConfiguration = new JsonConfiguration();
+            if (this.AppConfig.RecentConfigurations.Count > 0 && File.Exists(this.AppConfig.RecentConfigurations[0]))
+            {
+                loadMixerConfig(this.AppConfig.RecentConfigurations[0]);
+            }
+
+            if(this.AppConfig.LastConnectedPort != null && Port.AvailablePorts().Contains(this.AppConfig.LastConnectedPort))
+            {
+                this.connectPort(this.AppConfig.LastConnectedPort);
+            }
+
+            this.GetRecentConfig();
         }
 
         private void ControlVolume(object sender, SerialDataReceivedEventArgs e)
@@ -45,6 +68,7 @@ namespace SoundMixer
             var commandParts = data.Split(new char[] { ':' });
 
             var volume = long.Parse(commandParts[1]);
+            // sliding pot is not linear
             if(commandParts[0] == "0")
             {
                 volume = RangeConverter.linearize(
@@ -64,6 +88,21 @@ namespace SoundMixer
             this.Mixer.SetVolume(command);
         }
 
+        private void GetRecentConfig()
+        {
+            var recent = this.AppConfig.RecentConfigurations;
+            this.RecentMenu.Items.Clear();
+            foreach(var config in recent)
+            {
+                var configItem = new MenuItem();
+                configItem.Header = config;
+                configItem.Click += this.OnOpenRecent;
+                this.RecentMenu.Items.Add(configItem);
+            }
+            this.RecentMenu.IsEnabled = this.RecentMenu.HasItems;
+            this.ConnectionMenu.InvalidateArrange();
+        }
+
         private void GetPorts(object sender, RoutedEventArgs e)
         {
             var ports = Port.AvailablePorts();
@@ -80,22 +119,22 @@ namespace SoundMixer
                 this.ConnectionMenu.Items.Add(portItem);
             }
             this.ConnectionMenu.InvalidateArrange();
-            if (wasEmpty && this.ConnectionMenu.HasItems)
-            {
-                this.ConnectionMenu.SubmenuOpened -= GetPorts;
-                this.ConnectionMenu.IsSubmenuOpen = true;
-                this.ConnectionMenu.SubmenuOpened += GetPorts;
-            }
         }
 
         private void OnConnect(object sender, RoutedEventArgs e)
         {
             this.ConnectionStatus.Text = "Connecting...";
             var port = (sender as MenuItem).Header as String;
+            this.connectPort(port);
+        }
+
+        private void connectPort(string port)
+        {
             var connected = this.Port.Open(port);
             if (connected)
             {
                 this.ConnectionStatus.Text = port;
+                this.AppConfig.LastConnectedPort = port;
             }
             else
             {
@@ -110,15 +149,8 @@ namespace SoundMixer
 
         private void LoadMixer()
         {
-            try
-            {
-                var profile = this.MixerConfiguration.Profile;
-                this.Mixer = new Mixer(profile.Processes);
-            }
-            catch (IndexOutOfRangeException)
-            {
-                return;
-            }
+            var profile = this.MixerConfiguration.Profile;
+            this.Mixer = new Mixer(profile.Processes);
         }
 
         private void OnNew(object sender, RoutedEventArgs e)
@@ -140,6 +172,24 @@ namespace SoundMixer
             }
             this.LoadMixer();
         }
+        
+        private void OnOpenRecent(object sender, RoutedEventArgs e)
+        {
+            var path = ((MenuItem)sender).Header as String;
+            if (!File.Exists(path))
+            {
+                this.AppConfig.RemoveRecentConfiguration(path);
+            }
+            else
+            {
+                this.MixerConfiguration.Load(path);
+                this.ConfigurationStatus.Text = path;
+                this.LoadMixer();
+                this.AppConfig.AddRecentConfiguration(path);
+                this.Reload();
+            }
+            this.GetRecentConfig();
+        }
 
         private void OnOpen(object sender, RoutedEventArgs e)
         {
@@ -151,11 +201,18 @@ namespace SoundMixer
             if (dialogue.ShowDialog() == true)
             {
                 var path = dialogue.FileName;
-                this.MixerConfiguration.Load(path);
-                this.Reload();
-                this.ConfigurationStatus.Text = path;
-                this.LoadMixer();
+                this.loadMixerConfig(path);
+                this.AppConfig.AddRecentConfiguration(path);
+                this.GetRecentConfig();
             }
+        }
+
+        private void loadMixerConfig(string path)
+        {
+            this.MixerConfiguration.Load(path);
+            this.Reload();
+            this.ConfigurationStatus.Text = path;
+            this.LoadMixer();
         }
 
         private void OnSaveAs(object sender, RoutedEventArgs e)

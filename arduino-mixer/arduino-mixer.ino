@@ -9,7 +9,7 @@ void loop() {
   for(int i = 0; i < 5; i++){
     int val = analogRead(pins[i]);
     int difference = val - currentValues[i];
-    if(abs(difference) > 2){
+    if(abs(difference) > 1){
       Serial.print(i);
       Serial.write(":");
       Serial.println(val);

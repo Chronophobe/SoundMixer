@@ -24,6 +24,7 @@
             <MenuItem Header="_File">
                 <MenuItem Header="_New" Command="New" />
                 <MenuItem Header="_Open" Command="Open" />
+                <MenuItem Header="Open _Recent" Name="RecentMenu" />
                 <MenuItem Header="_Save" Command="Save" />
                 <MenuItem Header="Save _as" Click="OnSaveAs" />
             </MenuItem>

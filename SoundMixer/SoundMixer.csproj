@@ -65,6 +65,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Configuration\ApplicationConfig.cs" />
     <Compile Include="Controller\IController.cs" />
     <Compile Include="Controller\MasterController.cs" />
     <Compile Include="Controller\Mixer.cs" />
@@ -79,7 +80,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Configuration\Configuration.cs" />
+    <Compile Include="Configuration\JsonConfiguration.cs" />
     <Compile Include="Configuration\IConfiguration.cs" />
     <Compile Include="Configuration\Profile.cs" />
     <Compile Include="Controller\ProcessController.cs" />
